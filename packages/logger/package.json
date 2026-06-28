@@ -1,0 +1,10 @@
+{
+  "name": "@hamraz/logger",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "dependencies": {
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0"
+  }
+}

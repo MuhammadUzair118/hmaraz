@@ -1,0 +1,483 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum VitalMetricType {
+  HEART_RATE
+  BLOOD_PRESSURE_SYSTOLIC
+  BLOOD_PRESSURE_DIASTOLIC
+  TEMPERATURE
+  SPO2
+  WEIGHT
+  BLOOD_GLUCOSE
+  HRV
+  RESPIRATORY_RATE
+  STEPS
+  CALORIES_BURNED
+  SLEEP_HOURS
+  SLEEP_QUALITY
+  STRESS_LEVEL
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum DeviceType {
+  GOOGLE_HEALTH_CONNECT
+  APPLE_HEALTH_KIT
+  FITBIT
+  GARMIN
+  SAMSUNG_HEALTH
+  HUAWEI_HEALTH
+  MANUAL
+}
+
+enum SensorType {
+  ACCELEROMETER
+  GYROSCOPE
+  STEP_COUNTER
+  GPS
+  ACTIVITY_RECOGNITION
+  SLEEP
+  SCREEN_ACTIVITY
+}
+
+enum SyncStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+enum AlertLevel {
+  INFO
+  WARNING
+  CRITICAL
+  EMERGENCY
+}
+
+enum AnomalySeverity {
+  LOW
+  MODERATE
+  HIGH
+  CRITICAL
+}
+
+enum InsightType {
+  DAILY_SUMMARY
+  WEEKLY_TREND
+  MONTHLY_REPORT
+  ANOMALY_ALERT
+  WELLNESS_TIP
+  MILESTONE
+}
+
+model UserProfile {
+  id                  String   @id
+  email               String   @unique
+  name                String
+  role                UserRole @default(USER)
+  phone               String?
+  gender              Gender?
+  dateOfBirth         DateTime?
+  height              Float?
+  weight              Float?
+  avatar              String?
+  onboardingCompleted Boolean  @default(false)
+  isActive            Boolean  @default(true)
+  timezone            String?
+  measurementSystem   String   @default("metric")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  vitalRecords            VitalRecord[]
+  vitalBaselines          VitalBaseline[]
+  emergencyContacts       EmergencyContact[]
+  emergencyAlerts         EmergencyAlert[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference?
+  conversations           Conversation[]
+  healthMetrics           HealthMetric[]
+  analytics               Analytics[]
+  syncLogs                SyncLog[]
+  auditLogs               AuditLog[]
+  userSettings            UserSettings?
+  wearableDevices         WearableDevice[]
+  wearableSyncLogs        WearableSyncLog[]
+  phoneSensorData         PhoneSensorData[]
+  anomalyDetections       AnomalyDetection[]
+  aiInsights              AIInsight[]
+  dailySummaries          DailySummary[]
+
+  @@index([email])
+  @@index([role])
+  @@map("user_profiles")
+}
+
+model UserSettings {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  theme               String  @default("system")
+  measurementSystem   String  @default("metric")
+  aiProvider          String  @default("gemini")
+  wearableAutoSync    Boolean @default(true)
+  dataCollectionEnabled Boolean @default(true)
+  insightFrequency    String  @default("daily")
+  privacyJson         Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model VitalRecord {
+  id         String          @id @default(cuid())
+  userId     String
+  metric     VitalMetricType
+  value      Float
+  unit       String
+  timestamp  DateTime        @default(now())
+  source     DeviceType?
+  recordedAt DateTime        @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, metric, timestamp])
+  @@index([userId, timestamp])
+  @@map("vital_records")
+}
+
+model VitalBaseline {
+  id          String          @id @default(cuid())
+  userId      String
+  metric      VitalMetricType
+  minValue    Float
+  maxValue    Float
+  mean        Float?
+  stdDev      Float?
+  percentile5  Float?
+  percentile95 Float?
+  targetValue Float?
+  unit        String
+  sampleCount Int             @default(0)
+  updatedAt   DateTime        @updatedAt
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, metric])
+  @@map("vital_baselines")
+}
+
+model WearableDevice {
+  id            String     @id @default(cuid())
+  userId        String
+  deviceType    DeviceType
+  deviceName    String
+  externalId    String
+  isConnected   Boolean    @default(true)
+  lastSyncAt    DateTime?
+  authToken     String?
+  refreshToken  String?
+  tokenExpiresAt DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user     UserProfile      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  syncLogs WearableSyncLog[]
+
+  @@unique([userId, externalId])
+  @@index([userId, deviceType])
+  @@map("wearable_devices")
+}
+
+model WearableSyncLog {
+  id             String     @id @default(cuid())
+  deviceId       String
+  userId         String
+  status         SyncStatus @default(PENDING)
+  startedAt      DateTime   @default(now())
+  completedAt    DateTime?
+  metricsSynced  String[]
+  recordsCount   Int        @default(0)
+  errorMessage   String?
+  rawDataSize    Int?
+
+  device WearableDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  user   UserProfile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, startedAt])
+  @@index([userId, startedAt])
+  @@map("wearable_sync_logs")
+}
+
+model PhoneSensorData {
+  id        String     @id @default(cuid())
+  userId    String
+  sensorType SensorType
+  value     Float
+  unit      String
+  timestamp DateTime   @default(now())
+  metadata  Json?
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, sensorType, timestamp])
+  @@index([userId, timestamp])
+  @@map("phone_sensor_data")
+}
+
+model EmergencyContact {
+  id           String   @id @default(cuid())
+  userId       String
+  name         String
+  phone        String
+  relationship String
+  isNotified   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("emergency_contacts")
+}
+
+model EmergencyAlert {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  severity    AnomalySeverity?
+  location    String?
+  status      String   @default("ACTIVE")
+  contactedAt DateTime?
+  resolvedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([createdAt])
+  @@map("emergency_alerts")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id         String  @id @default(cuid())
+  userId     String  @unique
+  email      Boolean @default(true)
+  push       Boolean @default(true)
+  sms        Boolean @default(false)
+  types      String[]
+  insights   Boolean @default(true)
+  anomalies  Boolean @default(true)
+  summaries  Boolean @default(true)
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_preferences")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId, updatedAt])
+  @@map("conversations")
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model HealthMetric {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime
+  steps       Int?
+  calories    Int?
+  sleepHours  Float?
+  sleepQuality Int?
+  waterIntake Int?
+  mood        Int?
+  createdAt   DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("health_metrics")
+}
+
+model AnomalyDetection {
+  id          String          @id @default(cuid())
+  userId      String
+  metric      VitalMetricType
+  value       Float
+  baselineMin Float?
+  baselineMax Float?
+  baselineMean Float?
+  zScore      Float?
+  severity    AnomalySeverity @default(LOW)
+  explanation String?
+  isReviewed  Boolean         @default(false)
+  reviewedAt  DateTime?
+  notifiedAt  DateTime?
+  detectedAt  DateTime        @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, detectedAt])
+  @@index([userId, severity])
+  @@index([userId, isReviewed])
+  @@map("anomaly_detections")
+}
+
+model AIInsight {
+  id          String      @id @default(cuid())
+  userId      String
+  insightType InsightType
+  title       String
+  summary     String
+  content     Json?
+  riskScore   Float?
+  isRead      Boolean     @default(false)
+  isDismissed Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, insightType])
+  @@index([userId, isRead])
+  @@map("ai_insights")
+}
+
+model DailySummary {
+  id             String   @id @default(cuid())
+  userId         String
+  date           DateTime
+  summary        String
+  keyMetrics     Json?
+  highlights     String[]
+  recommendations String[]
+  mood           Int?
+  energy         Int?
+  createdAt      DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+  @@map("daily_summaries")
+}
+
+model Analytics {
+  id        String   @id @default(cuid())
+  userId    String
+  period    String
+  metric    String
+  average   Float
+  min       Float
+  max       Float
+  trend     Float
+  createdAt DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, period, metric])
+  @@map("analytics")
+}
+
+model SyncLog {
+  id       String   @id @default(cuid())
+  userId   String
+  device   String
+  status   String
+  syncedAt DateTime @default(now())
+
+  user UserProfile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, syncedAt])
+  @@map("sync_logs")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user UserProfile? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action, resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model CronJob {
+  id             String   @id @default(cuid())
+  jobKey         String   @unique
+  status         String   @default("idle")
+  startedAt      DateTime?
+  completedAt    DateTime?
+  lastRunAt      DateTime?
+  nextRunAt      DateTime?
+  usersProcessed Int      @default(0)
+  failedCount    Int      @default(0)
+  errorLog       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("cron_jobs")
+}
