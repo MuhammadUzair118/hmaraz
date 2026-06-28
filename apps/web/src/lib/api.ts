@@ -1,3 +1,32 @@
+export interface Notification {
+  id: string
+  userId: string
+  type: string
+  title: string
+  message: string
+  isRead: boolean
+  createdAt: string
+}
+
+export interface NotificationPreference {
+  email: boolean
+  push: boolean
+  sms: boolean
+  types: string[]
+  insights: boolean
+  anomalies: boolean
+  summaries: boolean
+}
+
+export interface UserSettings {
+  theme: string
+  measurementSystem: string
+  aiProvider: string
+  wearableAutoSync: boolean
+  dataCollectionEnabled: boolean
+  insightFrequency: string
+}
+
 async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const res = await fetch(endpoint, {
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -82,16 +111,16 @@ export const api = {
       if (params?.unreadOnly) qs.set('unreadOnly', 'true')
       if (params?.limit) qs.set('limit', String(params.limit))
       const query = qs.toString()
-      return fetchApi<{ notifications: Record<string, unknown>[]; unreadCount: number }>(`/api/notifications${query ? `?${query}` : ''}`)
+      return fetchApi<{ notifications: Notification[]; unreadCount: number }>(`/api/notifications${query ? `?${query}` : ''}`)
     },
     markRead: (id: string) =>
-      fetchApi<Record<string, unknown>>(`/api/notifications/${id}/read`, { method: 'PUT' }),
+      fetchApi<Notification>(`/api/notifications/${id}/read`, { method: 'PUT' }),
     markAllRead: () =>
       fetchApi<{ updatedCount: number }>('/api/notifications/read-all', { method: 'PUT' }),
     getPreferences: () =>
-      fetchApi<Record<string, unknown>>('/api/notifications/preferences'),
-    updatePreferences: (data: Record<string, unknown>) =>
-      fetchApi<Record<string, unknown>>('/api/notifications/preferences', { method: 'PUT', body: JSON.stringify(data) }),
+      fetchApi<NotificationPreference>('/api/notifications/preferences'),
+    updatePreferences: (data: Partial<NotificationPreference>) =>
+      fetchApi<NotificationPreference>('/api/notifications/preferences', { method: 'PUT', body: JSON.stringify(data) }),
   },
   insights: {
     list: (params?: { type?: string; limit?: number }) => {
@@ -110,9 +139,9 @@ export const api = {
   },
   settings: {
     get: () =>
-      fetchApi<Record<string, unknown>>('/api/settings'),
-    update: (data: Record<string, unknown>) =>
-      fetchApi<Record<string, unknown>>('/api/settings', { method: 'PUT', body: JSON.stringify(data) }),
+      fetchApi<UserSettings>('/api/settings'),
+    update: (data: Partial<UserSettings>) =>
+      fetchApi<UserSettings>('/api/settings', { method: 'PUT', body: JSON.stringify(data) }),
   },
   anomalies: {
     list: (params?: { severity?: string; metric?: string; limit?: number }) => {
