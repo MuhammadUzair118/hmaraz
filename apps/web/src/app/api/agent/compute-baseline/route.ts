@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth, unauthorized } from '@/lib/auth-helpers'
 import { prisma } from '@hamraz/database'
-import { BaselineService } from '@hamraz/ai'
+import { BaselineService, toVitalMetric } from '@hamraz/ai'
 
 export async function POST(request: Request) {
   const supabaseUser = await requireAuth()
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
 
     const vitals = records.map(v => ({
       userId: v.userId,
-      metric: v.metric.toLowerCase() as import('@hamraz/ai').VitalMetric,
+      metric: toVitalMetric(v.metric),
       value: v.value,
       unit: v.unit,
       timestamp: v.timestamp.toISOString(),

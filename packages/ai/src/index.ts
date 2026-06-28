@@ -1,3 +1,6 @@
+// Mapping
+export { toVitalMetric } from './mapping'
+
 // Types
 export type {
   Role,

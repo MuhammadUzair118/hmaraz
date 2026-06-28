@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth, unauthorized } from '@/lib/auth-helpers'
 import { prisma } from '@hamraz/database'
-import { createProviderSuite, AnomalyService, BaselineService } from '@hamraz/ai'
+import { createProviderSuite, AnomalyService, BaselineService, toVitalMetric } from '@hamraz/ai'
 
 export async function POST(request: Request) {
   const supabaseUser = await requireAuth()
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     const vitals = recentVitals.map(v => ({
       userId: v.userId,
-      metric: v.metric.toLowerCase() as import('@hamraz/ai').VitalMetric,
+      metric: toVitalMetric(v.metric),
       value: v.value,
       unit: v.unit,
       timestamp: v.timestamp.toISOString(),
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
     const aiAnomaly = {
       detected: true,
-      metric: anomaly.metric.toLowerCase() as import('@hamraz/ai').VitalMetric,
+      metric: toVitalMetric(anomaly.metric),
       value: anomaly.value,
       zScore: anomaly.zScore ?? 0,
       severity: (anomaly.severity?.toLowerCase() ?? 'low') as 'low' | 'medium' | 'high',

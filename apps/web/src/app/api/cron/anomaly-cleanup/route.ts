@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@hamraz/database'
-import { createProviderSuite, AnomalyService } from '@hamraz/ai'
+import { createProviderSuite, AnomalyService, toVitalMetric } from '@hamraz/ai'
 import { verifyCronSecret } from '../_cron-auth'
 import { acquireJobLock, completeJobLock, processBatch } from '../_cron-queue'
 
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
       const aiVitals = recentVitals.map(v => ({
         userId: v.userId,
-        metric: v.metric.toLowerCase() as import('@hamraz/ai').VitalMetric,
+        metric: toVitalMetric(v.metric),
         value: v.value,
         unit: v.unit,
         timestamp: v.timestamp.toISOString(),
@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
       const aiAnomaly = {
         detected: true,
-        metric: anomaly.metric.toLowerCase() as import('@hamraz/ai').VitalMetric,
+        metric: toVitalMetric(anomaly.metric),
         value: anomaly.value,
         zScore: anomaly.zScore ?? 0,
         severity: (anomaly.severity?.toLowerCase() ?? 'low') as 'low' | 'medium' | 'high',

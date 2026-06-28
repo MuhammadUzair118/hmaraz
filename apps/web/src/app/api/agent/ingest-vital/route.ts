@@ -6,6 +6,7 @@ import {
   BaselineService,
   AnomalyService,
   IngestService,
+  toVitalMetric,
 } from '@hamraz/ai'
 
 export async function POST(request: Request) {
@@ -22,7 +23,7 @@ export async function POST(request: Request) {
 
     const aiRecords: import('@hamraz/ai').VitalRecord[] = records.map((r: Record<string, unknown>) => ({
       userId: supabaseUser.id,
-      metric: r.metric as import('@hamraz/ai').VitalMetric,
+      metric: toVitalMetric(r.metric as string),
       value: Number(r.value),
       unit: r.unit as string,
       timestamp: (r.timestamp as string) ?? new Date().toISOString(),

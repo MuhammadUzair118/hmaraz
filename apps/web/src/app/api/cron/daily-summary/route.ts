@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@hamraz/database'
-import { createProviderSuite, InsightsService } from '@hamraz/ai'
+import { createProviderSuite, InsightsService, toVitalMetric } from '@hamraz/ai'
 import { verifyCronSecret } from '../_cron-auth'
 import { acquireJobLock, completeJobLock, processBatch, getConsentedUserIds } from '../_cron-queue'
 
@@ -33,14 +33,14 @@ export async function GET(request: Request) {
 
       const aiVitals = vitals.map(v => ({
         userId: v.userId,
-        metric: v.metric.toLowerCase() as import('@hamraz/ai').VitalMetric,
+        metric: toVitalMetric(v.metric),
         value: v.value,
         unit: v.unit,
         timestamp: v.timestamp.toISOString(),
       }))
 
       const aiBaselines = baselines.map(b => ({
-        metric: b.metric.toLowerCase() as import('@hamraz/ai').VitalMetric,
+        metric: toVitalMetric(b.metric),
         mean: b.mean ?? 0,
         stdDev: b.stdDev ?? 0,
         min: b.minValue,
