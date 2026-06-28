@@ -3,7 +3,7 @@ import { VitalMetricType } from '@hamraz/types'
 
 function toStandardUnit(value: number, fromUnit: string, toUnit: string): number {
   if (fromUnit === toUnit) return value
-  const conversions: Record<string, Record<string, number>> = {
+  const conversions: Record<string, Record<string, number | ((v: number) => number)>> = {
     'kg': { 'lb': 2.20462 },
     'lb': { 'kg': 0.453592 },
     'celsius': { 'fahrenheit': (v: number) => v * 9 / 5 + 32 },
