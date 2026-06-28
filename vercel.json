@@ -3,19 +3,5 @@
   "outputDirectory": ".next",
   "installCommand": "npm ci",
   "framework": "nextjs",
-  "regions": ["syd1"],
-  "crons": [
-    {
-      "path": "/api/cron/daily-summary",
-      "schedule": "0 8 * * *"
-    },
-    {
-      "path": "/api/cron/weekly-trend",
-      "schedule": "0 8 * * 1"
-    },
-    {
-      "path": "/api/cron/anomaly-cleanup",
-      "schedule": "0 */6 * * *"
-    }
-  ]
+  "regions": ["syd1"]
 }

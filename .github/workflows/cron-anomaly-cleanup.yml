@@ -1,0 +1,16 @@
+name: Cron Anomaly Cleanup
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger anomaly cleanup cron
+        run: |
+          curl -s -X GET "${{ secrets.VERCEL_DEPLOYMENT_URL }}/api/cron/anomaly-cleanup" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -w "\nHTTP %{http_code}"

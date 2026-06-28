@@ -1,0 +1,16 @@
+name: Cron Weekly Trend
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger weekly trend cron
+        run: |
+          curl -s -X GET "${{ secrets.VERCEL_DEPLOYMENT_URL }}/api/cron/weekly-trend" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -w "\nHTTP %{http_code}"
