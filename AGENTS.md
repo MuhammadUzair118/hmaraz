@@ -19,6 +19,24 @@ AI-powered Personal Health Intelligence Platform. Not telemedicine.
 - Do not start next phase until current phase is complete
 - Before modifying anything, check HAMRAZ_STATUS.md for preconditions
 
+## Delegation Rule (for every task)
+
+Before any phase or step:
+1. **I clarify** — "I can do this for you" or "You need to do this"
+2. **If I need info** — I ask for it explicitly (tokens, URLs, credentials)
+3. **If I can do it** — I execute without asking further
+4. **If impossible** — I assign it to you with clear copy-paste instructions
+5. **Never stuck** — I always end with a clear next action (mine or yours)
+
+| Scenario | I do | You do |
+|----------|------|--------|
+| Write code, create files, edit configs | ✅ Execute | — |
+| Push to GitHub (when I have auth) | ✅ Execute | — |
+| Need a token/credential | ❌ Ask you | ✅ Provide via chat |
+| Create repo on GitHub, Vercel project | ❌ Assign | ✅ Follow browser steps |
+| Run commands in terminal | ✅ Execute | — |
+| Something unclear | ❌ Stop and ask | ✅ Decide |
+
 ## Immutable Architecture Decisions
 | Area | Choice | Why |
 |------|--------|-----|
