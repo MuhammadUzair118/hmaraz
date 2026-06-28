@@ -7,6 +7,7 @@ import {
   AnomalyService,
   IngestService,
   toVitalMetric,
+  type VitalRecord,
 } from '@hamraz/ai'
 
 export async function POST(request: Request) {
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'records array is required' }, { status: 400 })
     }
 
-    const aiRecords: import('@hamraz/ai').VitalRecord[] = records.map((r: Record<string, unknown>) => ({
+    const aiRecords: VitalRecord[] = records.map((r: Record<string, unknown>) => ({
       userId: supabaseUser.id,
       metric: toVitalMetric(r.metric as string),
       value: Number(r.value),

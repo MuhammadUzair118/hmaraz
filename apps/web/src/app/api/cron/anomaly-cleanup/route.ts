@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@hamraz/database'
+import type { VitalRecord } from '@hamraz/ai'
 import { createProviderSuite, AnomalyService, toVitalMetric } from '@hamraz/ai'
 import { verifyCronSecret } from '../_cron-auth'
 import { acquireJobLock, completeJobLock, processBatch } from '../_cron-queue'
@@ -32,7 +33,7 @@ export async function GET(request: Request) {
         take: 20,
       })
 
-      const aiVitals = recentVitals.map(v => ({
+      const aiVitals: VitalRecord[] = recentVitals.map(v => ({
         userId: v.userId,
         metric: toVitalMetric(v.metric),
         value: v.value,

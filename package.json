@@ -18,6 +18,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
   },
   "devDependencies": {
+    "@types/cookie": "^0.6.0",
     "@types/node": "^20.14.0",
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",

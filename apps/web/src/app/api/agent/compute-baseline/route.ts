@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth, unauthorized } from '@/lib/auth-helpers'
 import { prisma } from '@hamraz/database'
+import type { VitalRecord } from '@hamraz/ai'
 import { BaselineService, toVitalMetric } from '@hamraz/ai'
 
 export async function POST(request: Request) {
@@ -23,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Need at least 5 records to compute baseline' }, { status: 400 })
     }
 
-    const vitals = records.map(v => ({
+    const vitals: VitalRecord[] = records.map(v => ({
       userId: v.userId,
       metric: toVitalMetric(v.metric),
       value: v.value,

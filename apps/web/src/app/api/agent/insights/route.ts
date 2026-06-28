@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth, unauthorized } from '@/lib/auth-helpers'
 import { prisma } from '@hamraz/database'
+import type { VitalRecord, Baseline } from '@hamraz/ai'
 import { createProviderSuite, InsightsService, toVitalMetric } from '@hamraz/ai'
 
 export async function POST(request: Request) {
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
       where: { userId: supabaseUser.id },
     })
 
-    const aiVitals = vitals.map(v => ({
+    const aiVitals: VitalRecord[] = vitals.map(v => ({
       userId: v.userId,
       metric: toVitalMetric(v.metric),
       value: v.value,
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
       timestamp: v.timestamp.toISOString(),
     }))
 
-    const aiBaselines = baselines.map(b => ({
+    const aiBaselines: Baseline[] = baselines.map(b => ({
       metric: toVitalMetric(b.metric),
       mean: b.mean ?? 0,
       stdDev: b.stdDev ?? 0,

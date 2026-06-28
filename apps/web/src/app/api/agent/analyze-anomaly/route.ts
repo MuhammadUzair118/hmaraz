@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAuth, unauthorized } from '@/lib/auth-helpers'
 import { prisma } from '@hamraz/database'
+import type { VitalRecord } from '@hamraz/ai'
 import { createProviderSuite, AnomalyService, BaselineService, toVitalMetric } from '@hamraz/ai'
 
 export async function POST(request: Request) {
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     const { fallback } = createProviderSuite()
     const baselineService = new BaselineService()
 
-    const vitals = recentVitals.map(v => ({
+    const vitals: VitalRecord[] = recentVitals.map(v => ({
       userId: v.userId,
       metric: toVitalMetric(v.metric),
       value: v.value,

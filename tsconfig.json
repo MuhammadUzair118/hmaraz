@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
+    "module": "esnext",
     "lib": ["ES2022"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -21,6 +21,7 @@
       "@hamraz/config": ["./packages/config/src/index.ts"],
       "@hamraz/logger": ["./packages/logger/src/index.ts"],
       "@hamraz/utils": ["./packages/utils/src/index.ts"],
+      "@hamraz/ai": ["./packages/ai/src/index.ts"],
       "@hamraz/database": ["./packages/database/src/index.ts"]
     }
   },
