@@ -2,7 +2,7 @@
 
 > **Last updated:** 2026-06-28  
 > **Deployed to production at https://hamraz-web.vercel.app**  
-> Phase 8 ✅ | Phase 9 ✅ | Phase 10 ✅
+> Phase 8 ✅ | Phase 9 ✅ | Phase 10 ✅ | Phase 11 ✅
 
 ---
 
@@ -39,6 +39,7 @@
 | 8 — Vercel Cron Jobs | ✅ Complete | Daily summaries, weekly trends, anomaly cleanup |
 | 9 — CI & Deployment | ✅ Complete | Vercel setup, CI/CD, repo cleanup, agent files |
 | 10 — Production Deploy | ✅ Complete | Deploy, env vars, cron, auth fix, OAuth config |
+| 11 — Placeholder Pages | ✅ Complete | Real Notifications & Settings pages built |
 
 ---
 
@@ -554,9 +555,10 @@ Do NOT:
 
 | Issue | Status | Notes |
 |-------|--------|-------|
-| `middleware.ts` deprecation | ⬜ Pending | Rename to `proxy.ts` — Next.js 16 warning only |
-| `outputFileTracingRoot`/`turbopack.root` mismatch | ⬜ Pending | Cosmetic build warning |
-| `VERCEL_DEPLOYMENT_URL` GitHub secret | ⬜ Needs update | Still points to `hmaraz-web.vercel.app` (old name) — update to `hamraz-web.vercel.app` |
-| GitHub Actions cron | ⬜ Not tested | Workflows created but no trigger yet |
-| Google OAuth end-to-end | ⬜ Not tested | Code fix applied, needs user to test sign-in flow |
-| Email/password signup | ⬜ Not tested | `SUPABASE_SERVICE_ROLE_KEY` now set, needs testing |
+| `middleware.ts` deprecation | ✅ Fixed | Renamed to `proxy.ts`, export `proxy` instead of `middleware` |
+| `VERCEL_DEPLOYMENT_URL` GitHub secret | ⬜ Needs update | Still points to `hmaraz-web.vercel.app` — update to `hamraz-web.vercel.app` |
+| GitHub Actions cron | ⬜ Not tested | Workflows created but need trigger verification |
+| Google OAuth end-to-end | ✅ Tested | Working — direct login without password |
+| Email/password signup | ⬜ Not tested | `SUPABASE_SERVICE_ROLE_KEY` now set |
+| `/notifications` page | ✅ Built | Real UI with All/Unread filter, mark read, mark all read |
+| `/settings` page | ✅ Built | Real UI with theme, units, AI provider, data privacy, sync toggles |
