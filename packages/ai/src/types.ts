@@ -45,7 +45,7 @@ export interface AnomalyResult {
   metric: VitalMetric
   value: number
   zScore: number
-  severity: 'low' | 'medium' | 'high'
+  severity: 'low' | 'moderate' | 'high'
   explanation?: string
   baseline?: Baseline
 }

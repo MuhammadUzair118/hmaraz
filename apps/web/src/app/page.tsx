@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { MessageCircle, TriangleAlert, Activity } from 'lucide-react'
+import { MessageCircle, TriangleAlert, Activity, Footprints, ShieldAlert } from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
 import VitalRing from '@/components/VitalRing'
 import { createClient } from '@/lib/supabase'
 import { api } from '@/lib/api'
+import { usePhoneSensors } from '@/hooks/usePhoneSensors'
 
 const VITAL_DISPLAY: Record<string, { label: string; unit: string }> = {
   heart_rate: { label: 'Heart Rate', unit: 'bpm' },
@@ -33,6 +34,7 @@ export default function Dashboard() {
   const [insight, setInsight] = useState<string>('')
   const [alerts, setAlerts] = useState<any[]>([])
   const [userName, setUserName] = useState('')
+  const { steps, permission, active, requestPermission } = usePhoneSensors()
 
   useEffect(() => {
     async function init() {
@@ -97,6 +99,36 @@ export default function Dashboard() {
         <p className="text-sm leading-relaxed opacity-90">
           {loading ? 'Loading your health insight...' : insight || 'No insight available yet. Check back after logging some vitals.'}
         </p>
+      </div>
+
+      {/* Phone Step Counter */}
+      <div className="mb-4 rounded-xl bg-white p-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <Footprints size={20} className="text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-gray">Steps Today</p>
+              <p className="text-2xl font-bold text-dark-slate">{steps.toLocaleString()}</p>
+            </div>
+          </div>
+          {!active && permission === 'prompt' && (
+            <button
+              onClick={requestPermission}
+              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-white transition hover:bg-primary/90"
+            >
+              <ShieldAlert size={14} />
+              Enable
+            </button>
+          )}
+          {!active && permission === 'denied' && (
+            <p className="text-xs text-muted-gray">Motion permission denied</p>
+          )}
+          {active && (
+            <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">Live</span>
+          )}
+        </div>
       </div>
 
       {/* Vitals Ring */}

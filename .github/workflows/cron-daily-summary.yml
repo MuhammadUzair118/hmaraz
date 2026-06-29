@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Trigger daily summary cron
         run: |
-          curl -s -X GET "${{ secrets.VERCEL_DEPLOYMENT_URL }}/api/cron/daily-summary" \
+          curl -s -X GET "https://hamraz-web.vercel.app/api/cron/daily-summary" \
             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
             -w "\nHTTP %{http_code}"

@@ -34,15 +34,16 @@ export class OllamaProvider extends AIProvider {
       throw new Error(`Ollama API error: ${response.status} ${response.statusText}`)
     }
 
-    const json = await response.json()
+    const json: Record<string, unknown> = await response.json()
+    const message = json.message as Record<string, unknown> | undefined
     return {
-      content: json.message?.content ?? '',
+      content: (message?.content as string) ?? '',
       finishReason: json.done ? 'stop' : 'unknown',
       usage: json.eval_count
         ? {
-            promptTokens: json.prompt_eval_count ?? 0,
-            completionTokens: json.eval_count ?? 0,
-            totalTokens: (json.prompt_eval_count ?? 0) + (json.eval_count ?? 0),
+            promptTokens: (json.prompt_eval_count as number) ?? 0,
+            completionTokens: (json.eval_count as number) ?? 0,
+            totalTokens: ((json.prompt_eval_count as number) ?? 0) + ((json.eval_count as number) ?? 0),
           }
         : undefined,
     }

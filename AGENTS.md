@@ -1,5 +1,8 @@
 # Hamraz — Agent Command Center
 
+## Startup (auto-read on session init)
+Before any task, read `.opencode/constitution.md` then `HAMRAZ_STATUS.md`. These give you the non-negotiable rules and project status.
+
 ## Identity
 AI-powered Personal Health Intelligence Platform. Not telemedicine.
 
@@ -13,6 +16,9 @@ AI-powered Personal Health Intelligence Platform. Not telemedicine.
 | `apps/web/src/lib/api.ts` | Typed API client |
 | `apps/web/src/lib/auth-helpers.ts` | `requireAuth()` pattern |
 | `packages/ai/src/services/insights.ts` | AI insight generation |
+| `.opencode/playbook.md` | 10 prompt playbook (build, audit, debug, etc.) |
+| `.opencode/constitution.md` | Agent Constitution — must-read first every session |
+| `AGENTS.md § Prompt Playbook` | Quick-reference index of all prompts |
 
 ## Phase Awareness
 - **Current phase:** see HAMRAZ_STATUS.md
@@ -83,12 +89,34 @@ Check `DATABASE_URL` and `DIRECT_URL` are correct
 ## Trigger Map
 | User says | Agent action |
 |-----------|-------------|
-| "optimize" | Run typecheck + lint + build, check for dead code |
-| "deploy" | Verify CI passes, check env vars, confirm Vercel project |
-| "security audit" | Scan for hardcoded keys, review PII handling in AI calls |
+| "audit" or "code review" | Reverse-engineer architecture, find flaws (quick). Use Prompt 02 for full audit. |
+| "optimize" | Run typecheck + lint + build (quick). Use Prompt 04 for deep perf audit. |
+| "debug" or "bug" | Trace root cause of failure. Use Prompt 03 for deep investigation. |
+| "plan" or "architect" | Challenge assumptions, design architecture first. Use Prompt 08 as tech lead. |
+| "deploy" | Verify CI passes, check env vars, confirm Vercel project. Use Prompt 10 for full DevOps. |
+| "security audit" | Scan hardcoded keys, review PII (quick). Use Prompt 09 for full OWASP audit. |
 | "test" | Run `npm test` across workspaces |
 | "migrate" | Run `prisma migrate dev`, verify schema changes |
 | "status" | Read and summarize HAMRAZ_STATUS.md |
+
+## Prompt Playbook
+
+Full prompts available in `.opencode/playbook.md`
+
+| # | Role | When to Use |
+|---|------|-------------|
+| 01 | Startup MVP Builder | Starting a new project from zero |
+| 02 | Senior Codebase Auditor | Deep audit of existing code |
+| 03 | Production Debugging Monster | Investigating bugs |
+| 04 | Performance Optimization Engineer | Speed/memory/scalability optimization |
+| 05 | Clean Architecture Rebuilder | Transforming messy code into clean architecture |
+| 06 | Startup Backend Architect | Designing production-grade backend |
+| 07 | Senior Frontend Engineer | Creating accessible, scalable UI components |
+| 08 | AI Technical Lead | Start of any new feature — plan before coding |
+| 09 | Production Security Auditor | Security audit before deployment |
+| 10 | Senior DevOps & Deployment Engineer | Preparing for production deployment |
+
+---
 
 ## Context Budget
 - Do not read entire files when a grep will do

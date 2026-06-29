@@ -122,7 +122,13 @@ export default function NotificationsPage() {
               return (
                 <button
                   key={n.id}
-                  onClick={() => !n.isRead && handleMarkRead(n.id)}
+                  onClick={() => {
+                    if (n.type === 'ANOMALY_ALERT' && n.refId) {
+                      router.push(`/chat?anomalyId=${n.refId}`)
+                    } else if (!n.isRead) {
+                      handleMarkRead(n.id)
+                    }
+                  }}
                   className={`flex w-full items-start gap-3 rounded-xl border p-4 text-left transition ${
                     n.isRead ? 'border-gray-100 bg-white' : 'border-primary/10 bg-primary/5'
                   }`}

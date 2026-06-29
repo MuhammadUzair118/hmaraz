@@ -4,6 +4,7 @@ export interface Notification {
   type: string
   title: string
   message: string
+  refId?: string | null
   isRead: boolean
   createdAt: string
 }
@@ -32,9 +33,9 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     ...options,
   })
-  const json = await res.json()
-  if (!res.ok) throw new Error(json?.error ?? 'API Error')
-  return json.data
+  const json: Record<string, unknown> = await res.json()
+  if (!res.ok) throw new Error((json?.error as string) ?? 'API Error')
+  return json.data as T
 }
 
 export const api = {

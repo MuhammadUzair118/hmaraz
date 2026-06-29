@@ -22,7 +22,7 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json()
-    const allowedFields = ['name', 'phone', 'gender', 'dateOfBirth', 'height', 'weight', 'avatar', 'timezone', 'measurementSystem', 'onboardingCompleted']
+    const allowedFields = ['name', 'phone', 'gender', 'dateOfBirth', 'height', 'weight', 'avatar', 'timezone', 'measurementSystem', 'onboardingCompleted', 'healthProfile']
 
     const updateData: Record<string, unknown> = {}
     for (const field of allowedFields) {

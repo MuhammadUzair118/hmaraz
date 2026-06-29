@@ -102,6 +102,7 @@ model UserProfile {
   isActive            Boolean  @default(true)
   timezone            String?
   measurementSystem   String   @default("metric")
+  healthProfile       Json?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -282,6 +283,7 @@ model Notification {
   type      String
   title     String
   message   String
+  refId     String?
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 

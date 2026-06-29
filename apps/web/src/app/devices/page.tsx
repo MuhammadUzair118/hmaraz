@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Smartphone, Plus, X, Check, Loader2, Apple, Watch, Gauge } from 'lucide-react'
+import { ArrowLeft, Smartphone, Plus, X, Check, Loader2, Apple, Watch, Gauge, ExternalLink } from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
 import { api } from '@/lib/api'
 
@@ -32,11 +32,22 @@ export default function DevicesPage() {
   const [loading, setLoading] = useState(true)
   const [showConnect, setShowConnect] = useState(false)
   const [connecting, setConnecting] = useState(false)
+  const [toast, setToast] = useState('')
   const [form, setForm] = useState({ deviceType: 'MANUAL', deviceName: '', externalId: '' })
 
   useEffect(() => {
     loadDevices()
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('fitbit') === 'connected') setToast('Fitbit connected successfully!')
+    else if (params.get('fitbit') === 'error') setToast('Failed to connect Fitbit. Try again.')
+    if (params.get('fitbit')) window.history.replaceState({}, '', '/devices')
   }, [])
+
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(''), 4000)
+    return () => clearTimeout(t)
+  }, [toast])
 
   async function loadDevices() {
     try {
@@ -78,6 +89,12 @@ export default function DevicesPage() {
       </div>
 
       <div className="px-4 pb-24 pt-4">
+        {toast && (
+          <div className="mb-4 rounded-lg bg-success/10 px-4 py-3 text-center text-sm font-medium text-success">
+            {toast}
+          </div>
+        )}
+
         {loading ? (
           <div className="flex justify-center py-16">
             <Loader2 size={24} className="animate-spin text-muted-gray" />
@@ -145,26 +162,45 @@ export default function DevicesPage() {
                   <option key={value} value={value}>{label}</option>
                 ))}
               </select>
-              <input
-                value={form.deviceName}
-                onChange={(e) => setForm(prev => ({ ...prev, deviceName: e.target.value }))}
-                placeholder="Device name (e.g., My Fitbit)"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
-              />
-              <input
-                value={form.externalId}
-                onChange={(e) => setForm(prev => ({ ...prev, externalId: e.target.value }))}
-                placeholder="Device ID or serial number"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
-              />
-              <button
-                onClick={handleConnect}
-                disabled={connecting || !form.deviceName || !form.externalId}
-                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-white disabled:opacity-50"
-              >
-                {connecting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
-                {connecting ? 'Connecting...' : 'Connect'}
-              </button>
+
+              {form.deviceType === 'FITBIT' ? (
+                <div className="rounded-lg bg-primary/5 p-4 text-center">
+                  <Watch size={32} className="mx-auto mb-2 text-primary" />
+                  <p className="mb-3 text-sm text-dark-slate">
+                    Connect your Fitbit account with one click. You'll be redirected to Fitbit to authorize access.
+                  </p>
+                  <a
+                    href="/api/devices/fitbit/auth"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition hover:bg-primary/90"
+                  >
+                    <ExternalLink size={16} />
+                    Connect with Fitbit
+                  </a>
+                </div>
+              ) : (
+                <>
+                  <input
+                    value={form.deviceName}
+                    onChange={(e) => setForm(prev => ({ ...prev, deviceName: e.target.value }))}
+                    placeholder="Device name"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                  />
+                  <input
+                    value={form.externalId}
+                    onChange={(e) => setForm(prev => ({ ...prev, externalId: e.target.value }))}
+                    placeholder="Device ID or serial number"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary focus:outline-none"
+                  />
+                  <button
+                    onClick={handleConnect}
+                    disabled={connecting || !form.deviceName || !form.externalId}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-white disabled:opacity-50"
+                  >
+                    {connecting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                    {connecting ? 'Connecting...' : 'Connect'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

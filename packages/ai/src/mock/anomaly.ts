@@ -6,7 +6,7 @@ export function mockAnomaly(): AnomalyResult {
     metric: 'heart_rate',
     value: 118,
     zScore: 2.8,
-    severity: 'medium',
+    severity: 'moderate',
     explanation: 'Your heart rate spiked to 118 bpm while at rest. This could be due to stress, caffeine, or recent activity. Your baseline is 72 bpm. If this persists, consider resting and monitoring.',
     baseline: {
       metric: 'heart_rate',

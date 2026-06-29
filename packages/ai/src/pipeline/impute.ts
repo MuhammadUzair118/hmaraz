@@ -23,16 +23,17 @@ export function imputeVitals(records: VitalRecord[]): PipelineResult<VitalRecord
     )
 
     for (let i = 0; i < sorted.length; i++) {
-      result.push(sorted[i])
+      const record = sorted[i]!
+      result.push(record)
 
       if (i < sorted.length - 1) {
-        const current = new Date(sorted[i].timestamp).getTime()
-        const next = new Date(sorted[i + 1].timestamp).getTime()
+        const current = new Date(record.timestamp).getTime()
+        const next = new Date(sorted[i + 1]!.timestamp).getTime()
         const gap = next - current
 
         if (gap > maxGap) {
           warnings.push(
-            `Gap of ${Math.round(gap / 1000 / 60)}min in ${sorted[i].metric} at ${sorted[i].timestamp}`
+            `Gap of ${Math.round(gap / 1000 / 60)}min in ${sorted[i]!.metric} at ${sorted[i]!.timestamp}`
           )
         }
       }
@@ -56,8 +57,8 @@ function interpolate(sorted: VitalRecord[]): VitalRecord[] {
   const interpolated: VitalRecord[] = []
 
   for (let i = 0; i < sorted.length - 1; i++) {
-    const a = sorted[i]
-    const b = sorted[i + 1]
+    const a = sorted[i]!
+    const b = sorted[i + 1]!
     const tA = new Date(a.timestamp).getTime()
     const tB = new Date(b.timestamp).getTime()
     const gap = tB - tA

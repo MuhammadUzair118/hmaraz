@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Heart, Activity, Droplets, Thermometer, Weight, TrendingUp, Moon, Wind, Apple, Gauge, Clock } from 'lucide-react'
+import { Heart, Activity, Droplets, Thermometer, Weight, TrendingUp, Moon, Wind, Apple, Gauge, Clock, Plus, X, Loader2 } from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
 import VitalChart from '@/components/VitalChart'
 import { api } from '@/lib/api'
@@ -52,6 +52,11 @@ export default function VitalsPage() {
   const [baseline, setBaseline] = useState<number | undefined>()
   const [loading, setLoading] = useState(true)
   const [chartLoading, setChartLoading] = useState(false)
+  const [showLogModal, setShowLogModal] = useState(false)
+  const [logMetric, setLogMetric] = useState('')
+  const [logValue, setLogValue] = useState('')
+  const [logSaving, setLogSaving] = useState(false)
+  const [logError, setLogError] = useState('')
 
   useEffect(() => {
     async function loadLatest() {
@@ -107,9 +112,41 @@ export default function VitalsPage() {
     })
     .filter(Boolean) as VitalCard[]
 
+  const handleLogVital = async () => {
+    if (!logMetric || !logValue) return
+    setLogSaving(true)
+    setLogError('')
+    try {
+      const cfg = VITAL_CONFIG[logMetric]
+      await api.vitals.create({
+        metric: logMetric.toUpperCase(),
+        value: Number(logValue),
+        unit: cfg?.unit ?? '',
+        source: 'MANUAL',
+      })
+      setShowLogModal(false)
+      setLogMetric('')
+      setLogValue('')
+      const data = await api.vitals.getLatestAll()
+      setLatest(data)
+    } catch {
+      setLogError('Failed to save. Try again.')
+    }
+    setLogSaving(false)
+  }
+
   return (
     <div className="mx-auto max-w-lg px-4 pb-24 pt-6">
-      <h1 className="mb-6 text-2xl font-bold text-dark-slate">Vitals</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-dark-slate">Vitals</h1>
+        <button
+          onClick={() => setShowLogModal(true)}
+          className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-primary/90"
+        >
+          <Plus size={16} />
+          Log
+        </button>
+      </div>
 
       {/* Period Selector */}
       <div className="mb-6 flex gap-2">
@@ -190,6 +227,61 @@ export default function VitalsPage() {
         <Clock size={16} />
         View Health Timeline
       </Link>
+
+      {/* Log Vital Modal */}
+      {showLogModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-dark-slate">Log Vital</h2>
+              <button onClick={() => setShowLogModal(false)} className="text-muted-gray hover:text-dark-slate">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-gray">Metric</label>
+                <select
+                  value={logMetric}
+                  onChange={e => setLogMetric(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-dark-slate focus:border-primary focus:outline-none"
+                >
+                  <option value="">Select metric...</option>
+                  {Object.entries(VITAL_CONFIG).map(([key, cfg]) => (
+                    <option key={key} value={key}>{cfg.label} ({cfg.unit})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-muted-gray">
+                  Value {logMetric ? `(${VITAL_CONFIG[logMetric]?.unit})` : ''}
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  value={logValue}
+                  onChange={e => setLogValue(e.target.value)}
+                  placeholder="Enter value"
+                  className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-dark-slate focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              {logError && <p className="text-xs text-red-500">{logError}</p>}
+
+              <button
+                onClick={handleLogVital}
+                disabled={!logMetric || !logValue || logSaving}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-white transition hover:bg-primary/90 disabled:opacity-50"
+              >
+                {logSaving ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+                Save Vital
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>

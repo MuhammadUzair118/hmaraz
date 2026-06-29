@@ -4,7 +4,7 @@ export class BaselineService {
   computeBaseline(records: VitalRecord[]): Baseline | null {
     if (records.length < 5) return null
 
-    const metric = records[0].metric
+    const metric = records[0]!.metric
     const values = records.map(r => r.value)
     const mean = values.reduce((a, b) => a + b, 0) / values.length
     const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / values.length

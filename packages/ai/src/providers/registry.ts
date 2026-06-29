@@ -48,8 +48,9 @@ export class ProviderRegistry {
     const available = this.getAvailable()
     const start = startIndex ?? 0
     for (let i = start; i < available.length; i++) {
-      if (this.health.isAvailable(available[i].name)) {
-        return available[i]
+      const provider = available[i]!
+      if (this.health.isAvailable(provider.name)) {
+        return provider
       }
     }
     return null

@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       metric: toVitalMetric(anomaly.metric),
       value: anomaly.value,
       zScore: anomaly.zScore ?? 0,
-      severity: (anomaly.severity?.toLowerCase() ?? 'low') as 'low' | 'medium' | 'high',
+      severity: (anomaly.severity?.toLowerCase() ?? 'low') as 'low' | 'moderate' | 'high',
       baseline,
     }
 

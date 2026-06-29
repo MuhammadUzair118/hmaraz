@@ -35,15 +35,16 @@ export class DeepSeekProvider extends AIProvider {
       throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`)
     }
 
-    const json = await response.json()
+    const json: Record<string, unknown> = await response.json()
+    const choices = json.choices as Array<Record<string, unknown>> | undefined
     return {
-      content: json.choices?.[0]?.message?.content ?? '',
-      finishReason: json.choices?.[0]?.finish_reason ?? 'unknown',
+      content: (choices?.[0]?.message as Record<string, unknown> | undefined)?.content as string ?? '',
+      finishReason: (choices?.[0]?.finish_reason as string) ?? 'unknown',
       usage: json.usage
         ? {
-            promptTokens: json.usage.prompt_tokens ?? 0,
-            completionTokens: json.usage.completion_tokens ?? 0,
-            totalTokens: json.usage.total_tokens ?? 0,
+            promptTokens: (json.usage as Record<string, number>).prompt_tokens ?? 0,
+            completionTokens: (json.usage as Record<string, number>).completion_tokens ?? 0,
+            totalTokens: (json.usage as Record<string, number>).total_tokens ?? 0,
           }
         : undefined,
     }

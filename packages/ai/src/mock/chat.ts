@@ -14,7 +14,7 @@ const MOCK_RESPONSES = [
 export async function* mockChatStream(
   _messages: Message[]
 ): AsyncIterable<string> {
-  const response = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)]
+  const response = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)]!
   const words = response.split(' ')
 
   for (const word of words) {

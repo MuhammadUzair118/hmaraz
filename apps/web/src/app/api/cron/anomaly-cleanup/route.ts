@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         metric: toVitalMetric(anomaly.metric),
         value: anomaly.value,
         zScore: anomaly.zScore ?? 0,
-        severity: (anomaly.severity?.toLowerCase() ?? 'low') as 'low' | 'medium' | 'high',
+        severity: (anomaly.severity?.toLowerCase() ?? 'low') as 'low' | 'moderate' | 'high',
       }
 
       const { fallback } = createProviderSuite()
@@ -64,6 +64,7 @@ export async function GET(request: Request) {
           type: 'ANOMALY_ALERT',
           title: `${anomaly.severity} ${anomaly.metric} Anomaly Detected`,
           message: explanation.substring(0, 200),
+          refId: anomaly.id,
         },
       })
 

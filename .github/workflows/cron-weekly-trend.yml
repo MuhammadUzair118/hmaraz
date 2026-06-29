@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Trigger weekly trend cron
         run: |
-          curl -s -X GET "${{ secrets.VERCEL_DEPLOYMENT_URL }}/api/cron/weekly-trend" \
+          curl -s -X GET "https://hamraz-web.vercel.app/api/cron/weekly-trend" \
             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
             -w "\nHTTP %{http_code}"

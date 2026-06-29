@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, MessageCircle, TriangleAlert, Loader2 } from 'lucide-react'
+import { Send, MessageCircle, TriangleAlert, Loader2, AlertTriangle } from 'lucide-react'
 import BottomNav from '@/components/BottomNav'
 import { api } from '@/lib/api'
 
@@ -18,12 +18,44 @@ export default function ChatPage() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [loadingAnomaly, setLoadingAnomaly] = useState(false)
   const [conversationId, setConversationId] = useState<string | undefined>()
   const bottomRef = useRef<HTMLDivElement>(null)
+  const anomalyLoadedRef = useRef(false)
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const anomalyId = params.get('anomalyId')
+    if (anomalyId && !anomalyLoadedRef.current) {
+      anomalyLoadedRef.current = true
+      loadAnomalyContext(anomalyId)
+    }
+  }, [])
+
+  async function loadAnomalyContext(anomalyId: string) {
+    setLoadingAnomaly(true)
+    try {
+      const data = await api.agent.analyzeAnomaly(anomalyId)
+      setMessages([
+        {
+          role: 'assistant',
+          content: `🔍 **Anomaly Analysis**\n\n**Metric:** ${data.metric}\n**Value:** ${data.value} (z-score: ${data.zScore})\n**Severity:** ${data.severity}\n\n${data.explanation ?? 'AI analysis is being prepared...'}\n\nI've loaded the context of this anomaly. Feel free to ask me any questions about it!`,
+        },
+      ])
+      window.history.replaceState({}, '', '/chat')
+    } catch {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: "I found an anomaly reference but couldn't load the details. You can still ask me anything about your health.",
+        isError: true,
+      }])
+    }
+    setLoadingAnomaly(false)
+  }
 
   const handleSend = async () => {
     if (!input.trim() || loading) return

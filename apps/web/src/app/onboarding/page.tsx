@@ -56,7 +56,13 @@ export default function OnboardingPage() {
 
   const handleFinish = async () => {
     try {
-      await api.users.updateMe({ ...answers, onboardingCompleted: true })
+      const healthProfile = {
+        goal: answers.goal || null,
+        age: answers.age ? Number(answers.age) : null,
+        conditions: answers.conditions || [],
+        wearable: answers.wearable || null,
+      }
+      await api.users.updateMe({ ...answers, healthProfile, onboardingCompleted: true })
     } catch { /* save best-effort */ }
     localStorage.removeItem(STORAGE_KEY)
     router.push('/')

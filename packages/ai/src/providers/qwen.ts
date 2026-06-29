@@ -39,16 +39,17 @@ export class QwenProvider extends AIProvider {
       throw new Error(`Qwen API error: ${response.status} ${response.statusText}`)
     }
 
-    const json = await response.json()
-    const output = json.output
+    const json: Record<string, unknown> = await response.json()
+    const output = json.output as Record<string, unknown> | undefined
+    const choices = output?.choices as Array<Record<string, unknown>> | undefined
     return {
-      content: output?.choices?.[0]?.message?.content ?? output?.text ?? '',
-      finishReason: output?.finish_reason ?? 'unknown',
+      content: (choices?.[0]?.message as Record<string, unknown> | undefined)?.content as string ?? (output?.text as string) ?? '',
+      finishReason: (output?.finish_reason as string) ?? 'unknown',
       usage: json.usage
         ? {
-            promptTokens: json.usage.input_tokens ?? 0,
-            completionTokens: json.usage.output_tokens ?? 0,
-            totalTokens: (json.usage.input_tokens ?? 0) + (json.usage.output_tokens ?? 0),
+            promptTokens: (json.usage as Record<string, number>).input_tokens ?? 0,
+            completionTokens: (json.usage as Record<string, number>).output_tokens ?? 0,
+            totalTokens: ((json.usage as Record<string, number>).input_tokens ?? 0) + ((json.usage as Record<string, number>).output_tokens ?? 0),
           }
         : undefined,
     }

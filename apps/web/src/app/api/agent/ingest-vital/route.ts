@@ -80,15 +80,30 @@ export async function POST(request: Request) {
     }
 
     for (const anomaly of result.data.anomalies) {
-      await prisma.anomalyDetection.create({
+      const severity = anomaly.severity.toUpperCase() as import('@prisma/client').$Enums.AnomalySeverity
+      const saved = await prisma.anomalyDetection.create({
         data: {
           userId: supabaseUser.id,
           metric: anomaly.metric.toUpperCase() as import('@prisma/client').$Enums.VitalMetricType,
           value: anomaly.value,
           zScore: anomaly.zScore,
-          severity: anomaly.severity.toUpperCase() as import('@prisma/client').$Enums.AnomalySeverity,
+          severity,
+          notifiedAt: anomaly.severity === 'moderate' || anomaly.severity === 'high' ? new Date() : undefined,
+          explanation: `${anomaly.metric} reading of ${anomaly.value} is ${anomaly.zScore > 0 ? 'above' : 'below'} your typical range.`,
         },
       })
+
+      if (anomaly.severity === 'moderate' || anomaly.severity === 'high') {
+        await prisma.notification.create({
+          data: {
+            userId: supabaseUser.id,
+            type: 'ANOMALY_ALERT',
+            title: `${anomaly.severity.charAt(0).toUpperCase() + anomaly.severity.slice(1)} ${anomaly.metric} Anomaly`,
+            message: `${anomaly.metric} reading of ${anomaly.value} (z-score: ${anomaly.zScore}) differs significantly from your baseline.`,
+            refId: saved.id,
+          },
+        })
+      }
     }
 
     return NextResponse.json({
