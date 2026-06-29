@@ -62,11 +62,11 @@ export default function VitalsPage() {
         if (keys.length > 0 && !selectedMetric) {
           setSelectedMetric(keys[0])
         }
-      } catch { /* ignore */ }
+      } catch { /* silent */ }
       setLoading(false)
     }
     loadLatest()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) // eslint-disable-line
 
   useEffect(() => {
     if (!selectedMetric) return

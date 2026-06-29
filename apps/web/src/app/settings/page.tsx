@@ -61,7 +61,7 @@ export default function SettingsPage() {
       await api.settings.update(update)
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
-    } catch {}
+    } catch { /* silent */ }
     setSaving(false)
   }
 

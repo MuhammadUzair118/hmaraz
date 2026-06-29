@@ -47,7 +47,7 @@ export default function NotificationsPage() {
       await api.notifications.markRead(id)
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n))
       setUnreadCount(prev => Math.max(0, prev - 1))
-    } catch {}
+    } catch { /* silent */ }
   }
 
   async function handleMarkAllRead() {
@@ -55,7 +55,7 @@ export default function NotificationsPage() {
       await api.notifications.markAllRead()
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })))
       setUnreadCount(0)
-    } catch {}
+    } catch { /* silent */ }
   }
 
   function formatTime(dateStr: string) {

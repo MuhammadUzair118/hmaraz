@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/cookie": "^0.6.0",
     "@types/node": "^20.14.0",
+    "@typescript-eslint/parser": "^8.62.0",
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "prettier": "^3.3.2",

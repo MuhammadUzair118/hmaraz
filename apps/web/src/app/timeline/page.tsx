@@ -43,7 +43,7 @@ export default function TimelinePage() {
 
   useEffect(() => {
     loadEvents()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) // eslint-disable-line
 
   async function loadEvents(loadMore = false) {
     if (!loadMore) setLoading(true)
